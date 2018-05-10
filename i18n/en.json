@@ -6815,6 +6815,10 @@
     "translation": "Unable to update role"
   },
   {
+    "id": "store.sql_role.save.get_all_page.app_error",
+    "translation": "Unable to get all roles"
+  },
+  {
     "id": "store.sql_session.analytics_session_count.app_error",
     "translation": "We couldn't count the sessions"
   },

@@ -480,6 +480,7 @@ type RoleStore interface {
 	GetByNames(names []string) StoreChannel
 	Delete(roldId string) StoreChannel
 	PermanentDeleteAll() StoreChannel
+	GetAllPage(offset, limit int) StoreChannel
 }
 
 type SchemeStore interface {

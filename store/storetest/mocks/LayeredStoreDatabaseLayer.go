@@ -570,6 +570,29 @@ func (_m *LayeredStoreDatabaseLayer) RoleSave(ctx context.Context, role *model.R
 	return r0
 }
 
+// RoleGetAllPage provides a mock function with given fields: ctx, scope, offset, limit, hints
+func (_m *LayeredStoreDatabaseLayer) RoleGetAllPage(ctx context.Context, offset, limit int, hints ...store.LayeredStoreHint) *store.LayeredStoreSupplierResult {
+	_va := make([]interface{}, len(hints))
+	for _i := range hints {
+		_va[_i] = hints[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, offset, limit)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	var r0 *store.LayeredStoreSupplierResult
+	if rf, ok := ret.Get(0).(func(context.Context, int, int, ...store.LayeredStoreHint) *store.LayeredStoreSupplierResult); ok {
+		r0 = rf(ctx, offset, limit, hints...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*store.LayeredStoreSupplierResult)
+		}
+	}
+
+	return r0
+}
+
 // Scheme provides a mock function with given fields:
 func (_m *LayeredStoreDatabaseLayer) Scheme() store.SchemeStore {
 	ret := _m.Called()

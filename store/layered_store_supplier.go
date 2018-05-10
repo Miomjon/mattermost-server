@@ -37,6 +37,7 @@ type LayeredStoreSupplier interface {
 	RoleGetByNames(ctx context.Context, names []string, hints ...LayeredStoreHint) *LayeredStoreSupplierResult
 	RoleDelete(ctx context.Context, roldId string, hints ...LayeredStoreHint) *LayeredStoreSupplierResult
 	RolePermanentDeleteAll(ctx context.Context, hints ...LayeredStoreHint) *LayeredStoreSupplierResult
+	RoleGetAllPage(ctx context.Context, offset, limit int, hints ...LayeredStoreHint) *LayeredStoreSupplierResult
 
 	// Schemes
 	SchemeSave(ctx context.Context, scheme *model.Scheme, hints ...LayeredStoreHint) *LayeredStoreSupplierResult

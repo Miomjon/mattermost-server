@@ -19,6 +19,7 @@ func TestRoleStore(t *testing.T, ss store.Store) {
 	t.Run("GetNames", func(t *testing.T) { testRoleStoreGetByNames(t, ss) })
 	t.Run("Delete", func(t *testing.T) { testRoleStoreDelete(t, ss) })
 	t.Run("PermanentDeleteAll", func(t *testing.T) { testRoleStorePermanentDeleteAll(t, ss) })
+	t.Run("GetAllPage", func(t *testing.T) { testRoleStoreGetAllPage(t, ss) })
 }
 
 func testRoleStoreSave(t *testing.T, ss store.Store) {
@@ -326,4 +327,54 @@ func testRoleStorePermanentDeleteAll(t *testing.T, ss store.Store) {
 	res3 := <-ss.Role().GetByNames([]string{r1.Name, r2.Name})
 	assert.Nil(t, res3.Err)
 	assert.Len(t, res3.Data.([]*model.Role), 0)
+}
+
+func testRoleStoreGetAllPage(t *testing.T, ss store.Store) {
+	// Save some roles to test with.
+	r1 := &model.Role{
+		Name:        model.NewId(),
+		DisplayName: model.NewId(),
+		Description: model.NewId(),
+		Permissions: []string{
+			"invite_user",
+			"create_public_channel",
+			"add_user_to_team",
+		},
+		SchemeManaged: false,
+	}
+	r2 := &model.Role{
+		Name:        model.NewId(),
+		DisplayName: model.NewId(),
+		Description: model.NewId(),
+		Permissions: []string{
+			"read_channel",
+			"create_public_channel",
+			"add_user_to_team",
+		},
+		SchemeManaged: false,
+	}
+
+	res1 := <-ss.Role().Save(r1)
+	assert.Nil(t, res1.Err)
+	d1 := res1.Data.(*model.Role)
+	assert.Len(t, d1.Id, 26)
+
+	res2 := <-ss.Role().Save(r2)
+	assert.Nil(t, res2.Err)
+	d2 := res2.Data.(*model.Role)
+	assert.Len(t, d2.Id, 26)
+
+	// Gets first page.
+	res := <-ss.Role().GetAllPage(0, 1)
+	assert.Nil(t, res.Err)
+	roles := res.Data.([]*model.Role)
+	assert.Len(t, roles, 1)
+	assert.Contains(t, roles, d1)
+
+	// Gets second page.
+	res = <-ss.Role().GetAllPage(1, 1)
+	assert.Nil(t, res.Err)
+	roles = res.Data.([]*model.Role)
+	assert.Len(t, roles, 1)
+	assert.Contains(t, roles, d2)
 }

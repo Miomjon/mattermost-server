@@ -112,6 +112,24 @@ func (s *RedisSupplier) RolePermanentDeleteAll(ctx context.Context, hints ...Lay
 	return s.Next().RolePermanentDeleteAll(ctx, hints...)
 }
 
+func (s *RedisSupplier) RoleGetAllPage(ctx context.Context, offset, limit int, hints ...LayeredStoreHint) *LayeredStoreSupplierResult {
+	var foundRoles []*model.Role
+
+	result := s.Next().RoleGetAllPage(ctx, offset, limit, hints...)
+
+	if result.Err == nil {
+		rolesFound := result.Data.([]*model.Role)
+		for _, role := range rolesFound {
+			if err := s.save(buildRedisKeyForRoleName(role.Name), role, REDIS_EXPIRY_TIME); err != nil {
+				mlog.Error("Redis encountered and error on write: " + err.Error())
+			}
+		}
+		result.Data = append(foundRoles, result.Data.([]*model.Role)...)
+	}
+
+	return result
+}
+
 func buildRedisKeyForRoleName(roleName string) string {
 	return fmt.Sprintf("roles:%s", roleName)
 }

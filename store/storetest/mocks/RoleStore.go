@@ -108,3 +108,19 @@ func (_m *RoleStore) Save(role *model.Role) store.StoreChannel {
 
 	return r0
 }
+
+// GetAllPage provides a mock function with given fields: scope, offset, limit
+func (_m *RoleStore) GetAllPage(offset int, limit int) store.StoreChannel {
+	ret := _m.Called(offset, limit)
+
+	var r0 store.StoreChannel
+	if rf, ok := ret.Get(0).(func(int, int) store.StoreChannel); ok {
+		r0 = rf(offset, limit)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(store.StoreChannel)
+		}
+	}
+
+	return r0
+}

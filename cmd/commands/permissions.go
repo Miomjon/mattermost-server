@@ -25,11 +25,29 @@ var ResetPermissionsCmd = &cobra.Command{
 	RunE:    resetPermissionsCmdF,
 }
 
+var ExportPermissionsCmd = &cobra.Command{
+	Use:     "export",
+	Short:   "Export permissions data",
+	Long:    "Export Roles and Schemes to JSONL for use by Mattermost permissions import.",
+	Example: " export permissions > permissions_data.jsonl",
+	RunE:    exportPermissionsCmdF,
+}
+
+var ImportPermissionsCmd = &cobra.Command{
+	Use:     "import [file]",
+	Short:   "Import permissions data",
+	Long:    "Import Roles and Schemes JSONL data as created by the Mattermost permissions export.",
+	Example: " import permissions permissions_data.jsonl",
+	RunE:    importPermissionsCmdF,
+}
+
 func init() {
 	ResetPermissionsCmd.Flags().Bool("confirm", false, "Confirm you really want to reset the permissions system and a database backup has been performed.")
 
 	PermissionsCmd.AddCommand(
 		ResetPermissionsCmd,
+		ExportPermissionsCmd,
+		ImportPermissionsCmd,
 	)
 	cmd.RootCmd.AddCommand(PermissionsCmd)
 }
@@ -62,5 +80,20 @@ func resetPermissionsCmdF(command *cobra.Command, args []string) error {
 
 	cmd.CommandPrettyPrintln("Permissions system successfully reset")
 
+	return nil
+}
+
+func exportPermissionsCmdF(command *cobra.Command, args []string) error {
+	a, err := cmd.InitDBCommandContextCobra(command)
+	if err != nil {
+		return err
+	}
+	if err := a.ExportPermissions(); err != nil {
+		return errors.New(err.Error())
+	}
+	return nil
+}
+
+func importPermissionsCmdF(command *cobra.Command, args []string) error {
 	return nil
 }

@@ -86,3 +86,21 @@ func (s *LocalCacheSupplier) RolePermanentDeleteAll(ctx context.Context, hints .
 
 	return s.Next().RolePermanentDeleteAll(ctx, hints...)
 }
+
+func (s *LocalCacheSupplier) RoleGetAllPage(ctx context.Context, offset, limit int, hints ...LayeredStoreHint) *LayeredStoreSupplierResult {
+	var foundRoles []*model.Role
+
+	result := s.Next().RoleGetAllPage(ctx, offset, limit, hints...)
+
+	if result.Data != nil {
+		rolesFound := result.Data.([]*model.Role)
+		for _, role := range rolesFound {
+			res := NewSupplierResult()
+			res.Data = role
+			s.doStandardAddToCache(ctx, s.roleCache, role.Name, res, hints...)
+		}
+		result.Data = append(foundRoles, result.Data.([]*model.Role)...)
+	}
+
+	return result
+}

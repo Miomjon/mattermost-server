@@ -3,7 +3,10 @@
 
 package app
 
-import "github.com/mattermost/mattermost-server/model"
+import (
+	"github.com/mattermost/mattermost-server/model"
+	"github.com/mattermost/mattermost-server/store"
+)
 
 func (a *App) GetScheme(id string) (*model.Scheme, *model.AppError) {
 	if result := <-a.Srv.Store.Scheme().Get(id); result.Err != nil {
@@ -112,4 +115,17 @@ func (a *App) IsPhase2MigrationCompleted() *model.AppError {
 	// TODO: Actually check the Phase 2 migration has completed before permitting these actions.
 
 	return nil
+}
+
+func (a *App) NewSchemeIterator(batchSize int) *store.PageIterator {
+	more := func(offset int) (int, interface{}, *model.AppError) {
+		var batch []*model.Scheme
+		var result store.StoreResult
+		if result = <-a.Srv.Store.Scheme().GetAllPage("", offset, batchSize); result.Err != nil {
+			return 0, nil, result.Err
+		}
+		batch = result.Data.([]*model.Scheme)
+		return len(batch), batch, nil
+	}
+	return store.NewPageIterator(batchSize, more)
 }

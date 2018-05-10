@@ -271,6 +271,12 @@ func (s *LayeredRoleStore) PermanentDeleteAll() StoreChannel {
 	})
 }
 
+func (s *LayeredRoleStore) GetAllPage(offset, limit int) StoreChannel {
+	return s.RunQuery(func(supplier LayeredStoreSupplier) *LayeredStoreSupplierResult {
+		return supplier.RoleGetAllPage(s.TmpContext, offset, limit)
+	})
+}
+
 type LayeredSchemeStore struct {
 	*LayeredStore
 }

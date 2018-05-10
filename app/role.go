@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	"github.com/mattermost/mattermost-server/model"
+	"github.com/mattermost/mattermost-server/store"
 )
 
 func (a *App) GetRole(id string) (*model.Role, *model.AppError) {
@@ -89,4 +90,17 @@ func (a *App) sendUpdatedRoleEvent(role *model.Role) {
 	a.Go(func() {
 		a.Publish(message)
 	})
+}
+
+func (a *App) NewRoleIterator(batchSize int) *store.PageIterator {
+	more := func(offset int) (int, interface{}, *model.AppError) {
+		var batch []*model.Role
+		var result store.StoreResult
+		if result = <-a.Srv.Store.Role().GetAllPage(offset, batchSize); result.Err != nil {
+			return 0, nil, result.Err
+		}
+		batch = result.Data.([]*model.Role)
+		return len(batch), batch, nil
+	}
+	return store.NewPageIterator(batchSize, more)
 }

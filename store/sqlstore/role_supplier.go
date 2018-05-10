@@ -250,3 +250,22 @@ func (s *SqlSupplier) RolePermanentDeleteAll(ctx context.Context, hints ...store
 
 	return result
 }
+
+func (s *SqlSupplier) RoleGetAllPage(ctx context.Context, offset, limit int, hints ...store.LayeredStoreHint) *store.LayeredStoreSupplierResult {
+	result := store.NewSupplierResult()
+
+	var dbRoles []*Role
+
+	if _, err := s.GetReplica().Select(&dbRoles, "SELECT * from Roles WHERE DeleteAt = 0 ORDER BY CreateAt DESC LIMIT :Limit OFFSET :Offset", map[string]interface{}{"Limit": limit, "Offset": offset}); err != nil {
+		result.Err = model.NewAppError("SqlRoleStore.GetAll", "store.sql_role.get_all.app_error", nil, err.Error(), http.StatusInternalServerError)
+	}
+
+	var roles []*model.Role
+	for _, dbRole := range dbRoles {
+		roles = append(roles, dbRole.ToModel())
+	}
+
+	result.Data = roles
+
+	return result
+}
